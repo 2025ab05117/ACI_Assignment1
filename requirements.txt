@@ -1,1 +1,31 @@
+# =============================================================================
+# ACI Assignment 1 - PS11: Route Optimizer
+# =============================================================================
+# Assignment Title: Local Beam Search (k=2) for Warehouse Route Optimization
+# Course: MTech in Artificial Intelligence and Machine Learning
+# Institution: Birla Institute of Technology & Science, Pilani
+# Work-Integrated Learning Programmes (WILP)
+# =============================================================================
 
+# -------------------------- Python Version Requirement --------------------------
+python>=3.8
+
+# -------------------------- Dependencies ---------------------------------------
+# This project uses ONLY Python Standard Library.
+# No external/third-party packages are required.
+
+# Standard Libraries Used:
+# - sys          : For command-line argument handling and file paths
+# - traceback    : For detailed error reporting and debugging
+
+# -------------------------- Notes ----------------------------------------------
+# This assignment strictly follows the requirement of using only built-in Python
+# modules as per the problem statement.
+# No installation via pip is needed.
+
+# To run the project:
+#    python src/PS11_LocalBeamSearch.py
+
+# =============================================================================
+# End of requirements.txt
+# =============================================================================
