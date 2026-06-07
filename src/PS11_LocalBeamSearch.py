@@ -1,6 +1,51 @@
+from email import message
 import sys
 import os
 import traceback
+
+import sys
+import traceback
+# ====================== BEAM DATA STRUCTURE ======================
+class Beam:
+    """
+    Fixed-capacity Beam data structure for Local Beam Search.
+    Implements insert operation with appropriate messages when capacity is full or empty.
+    This satisfies the assignment requirement for data structure capacity handling.
+    """
+    def __init__(self, max_size=2):     
+        """Initialize the Beam with a specified maximum size (capacity) and an empty list to hold the states. """
+        self.max_size = max_size
+        self.states = []
+
+    def is_full(self):  
+        """Check if the beam is full by comparing the length of the states list to the maximum size."""                
+        return len(self.states) >= self.max_size
+
+    def is_empty(self):    
+        """Check if the beam is empty by checking if the length of the states list is zero."""             
+        return len(self.states) == 0
+
+    def insert(self, state):            
+        """Insert state. Shows message if beam capacity is full."""
+        if self.is_full():
+            print(f"[BEAM CAPACITY] Beam is FULL (max capacity = {self.max_size}). Cannot insert more states.")
+            return False
+        self.states.append(state)
+        return True
+
+    def get_states(self):  
+        """Return the current list of states in the beam."""             
+        return self.states
+
+    def set_states(self, new_states):  
+        """Replace beam with new top-k states (enforces capacity)."""
+        if len(new_states) > self.max_size:
+            print(f"[BEAM CAPACITY] Warning: Truncating to max capacity {self.max_size}")
+        self.states = new_states[:self.max_size]
+
+    def __len__(self):  
+        """Return the current number of states in the beam."""      
+        return len(self.states)
 
 
 def read_input(file_path):
@@ -119,25 +164,27 @@ def local_beam_search(rows, cols, start, goal, grid, k=2):
     log("=" * 70)
     log("")
 
-    current_beam = [(start, 0, [start])]  # List of (position, g_cost, path_list)
+    beam = Beam(max_size=k)
+    beam.insert((start, 0, [start]))
     iteration = 0
     max_iter = rows * cols * 2  # Safety limit proportional to grid size
 
-    while current_beam and iteration < max_iter:
+    while not beam.is_empty() and iteration < max_iter:
         log("")
         log("=" * 60)
         log("ITERATION {}".format(iteration))
         log("=" * 60)
-
+        
+        current_states = beam.get_states()
         # Display current beam states with h and g
         log("")
         log("[SELECTED BEAM STATES] (k={} best so far):".format(k))
-        for (r, c), g, path in current_beam:
+        for (r, c), g, path in current_states:
             h = manhattan(r, c, goal)
             log("  ({},{}) | h={:2d} | g={:2d} | path_len={}".format(r, c, h, g, len(path)))
 
         # Check if goal reached in current beam
-        for (r, c), g, path in current_beam:
+        for (r, c), g, path in current_states:
             if (r, c) == goal:
                 log("")
                 log("*** GOAL REACHED in beam ***")
@@ -148,7 +195,7 @@ def local_beam_search(rows, cols, start, goal, grid, k=2):
         log("[GENERATING SUCCESSORS from current beam]:")
         candidates = []
         directions = [(-1, 0, "Up"), (1, 0, "Down"), (0, -1, "Left"), (0, 1, "Right")]
-        for (r, c), g, path in current_beam:
+        for (r, c), g, path in current_states:
             visited_in_path = set(path)  # Avoid revisiting cells already in this path
             successors_for_state = []
             for dr, dc, dname in directions:
@@ -192,8 +239,8 @@ def local_beam_search(rows, cols, start, goal, grid, k=2):
         # Select best k states
         log("")
         log("[SELECTING TOP {} BEAM STATES by min h then min g]:".format(k))
-        current_beam = candidate_list[:k]
-        for i, ((r, c), g, _) in enumerate(current_beam):
+        beam.set_states(candidate_list[:k])
+        for i, ((r, c), g, _) in enumerate(beam.get_states()):
             h = manhattan(r, c, goal)
             log("  #{}: ({},{}) | h={:2d} | g={:2d}".format(i + 1, r, c, h, g))
 
@@ -253,11 +300,11 @@ if __name__ == "__main__":
     except FileNotFoundError as e:
         print("\n ERROR OCCURRED!")
         print(f"Error: Input file not found - {e}")
-        traceback.print_exc()
+        #traceback.print_exc()
     except ValueError as e:
         print("\n ERROR OCCURRED!")
         print(f"Error: Invalid input format - {e}")
-        traceback.print_exc()
+        #traceback.print_exc()
     except Exception as e:
         print("\nUNEXPECTED ERROR: {}".format(e))
         traceback.print_exc()
