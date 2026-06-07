@@ -198,37 +198,11 @@ def local_beam_search(rows, cols, start, goal, grid, k=2):
             log("  #{}: ({},{}) | h={:2d} | g={:2d}".format(i + 1, r, c, h, g))
 
         iteration += 1
-
-    if iteration >= max_iter:
-        log("")
-        log("Max iterations reached ({}) - possible loop or no path.".format(max_iter))
-    return None, None, log_lines
-
-
-def write_output(output_file, log_lines, path, total_cost):
-    """
-    Writes the full execution trace and final results to the output file.
-    Includes: selected beam states, heuristic values, traversal costs,
-    final path, total path cost, and total optimized traversal cost.
-    """
-    with open(output_file, "w") as f:
-        # Write full iteration-by-iteration trace
-        for line in log_lines:
-            f.write(line + "\n")
-
-        f.write("\n" + "=" * 70 + "\n")
-        f.write("FINAL RESULT\n")
-        f.write("=" * 70 + "\n")
-
-        if path:
-            path_str = " -> ".join(["({},{})".format(r, c) for r, c in path])
-            f.write("Final Path from Start to Goal:\n{}\n".format(path_str))
-            f.write("Total Path Cost (number of steps): {}\n".format(len(path) - 1))
-            f.write("Total Optimized Traversal Cost: {}\n".format(total_cost))
-        else:
-            f.write("No solution found.\n")
-
-        f.write("=" * 70 + "\n")
+    
+    if iteration >= max_iter:                              # If the maximum number of iterations is reached without finding a solution, print a message indicating that the search has reached its limit and return None to indicate that no solution was found, which helps to prevent infinite loops in case of bugs or if the search space is too large to explore within a reasonable time frame.
+        print("Max iterations reached - possible loop or no path.")
+        pass
+    return None, None
 
 
 # ====================== MAIN ======================
@@ -236,12 +210,8 @@ def write_output(output_file, log_lines, path, total_cost):
 # displays and writes all required output, with full error handling.
 if __name__ == "__main__":
     try:
-        # Determine file paths relative to this script's location
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        project_dir = os.path.dirname(script_dir)
-
-        input_file = os.path.join(project_dir, "input", "inputPS11.txt")
-        output_file = os.path.join(project_dir, "output", "outputPS11.txt")
+        input_file = "input/inputPS11.txt"
+        output_file = "output/outputPS11.txt"
 
         print("=" * 70)
         print("FILE PATHS USED:")
@@ -261,24 +231,32 @@ if __name__ == "__main__":
             path_str = " -> ".join(["({},{})".format(r, c) for r, c in path])
             print("\n" + "=" * 70)
             print("FINAL RESULT")
-            print("=" * 70)
-            print("Final Path          : {}".format(path_str))
-            print("Total Path Cost     : {} steps".format(len(path) - 1))
-            print("Total Traversal Cost: {}".format(total_cost))
-            print("=" * 70)
+            print("="*70)
+            print(f"Final Path : {path_str}")
+            print(f"Total Cost : {total_cost}")
+            print("="*70)
 
-            write_output(output_file, log_lines, path, total_cost)
-            print("\nOutput written to: {}".format(output_file))
+            # Write the final path and total cost to the output file for documentation and further analysis.
+            # This step ensures that the results of the local beam search are saved in a structured format for future reference or grading purposes.
+            with open(output_file, "w") as f:
+                f.write("=" * 70 + "\n")
+                f.write("FINAL RESULT\n")
+                f.write("=" * 70 + "\n")
+                f.write(f"Final Path from Start to Goal:\n{path_str}\n")
+                f.write(f"Total Path Cost: {total_cost}\n")
+                f.write("=" * 70 + "\n")
+            print(f"\nOutput written to: {output_file}")
         else:
-            print("\nNo solution found.")
-            write_output(output_file, log_lines, None, None)
-            print("Output written to: {}".format(output_file))
+            print("No solution found.")
+            pass
 
     except FileNotFoundError as e:
-        print("\nFILE ERROR: {}".format(e))
+        print("\n ERROR OCCURRED!")
+        print(f"Error: Input file not found - {e}")
         traceback.print_exc()
     except ValueError as e:
-        print("\nINPUT ERROR: {}".format(e))
+        print("\n ERROR OCCURRED!")
+        print(f"Error: Invalid input format - {e}")
         traceback.print_exc()
     except Exception as e:
         print("\nUNEXPECTED ERROR: {}".format(e))
